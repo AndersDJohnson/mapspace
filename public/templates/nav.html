@@ -24,6 +24,12 @@
         <a ng-click="fit($event)">Fit Points</a>
       </li>
       <li ng-show="{{spaceId}}">
+        <a ng-click="joinSpace($event)">Join Space</a>
+      </li>
+      <li ng-show="{{spaceId}}">
+        <a ng-click="leaveSpace($event)">Leave Space</a>
+      </li>
+      <li ng-show="{{spaceId}}">
         <a>Space: {{spaceId}}</a>
       </li>
     </ul>

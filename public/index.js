@@ -199,29 +199,42 @@ MapSpace.prototype.renderLoop = function () {
 };
 
 
+MapSpace.prototype.eachMyPointLoop = function () {
+  var _this = this;
+
+  var $scope = _this.$scope;
+  var mapspaceService = _this.mapspaceService;
+
+  if ($scope.leavingSpace) {
+    console.log('not updating since leaving space.');
+    return false;
+  }
+
+  console.log('updating my point...');
+
+  var spaceId = $scope.spaceId;
+  var myPointId = $scope.myPointId;
+
+  mapspaceService.getMyPoint().then(function (myPoint) {
+
+    $scope.myPoint = myPoint;
+
+    mapspaceService.updatePoint(spaceId, myPointId, myPoint).then(function (ref) {
+      console.log('...updated my point');
+    });
+
+  });
+
+};
+
+
 MapSpace.prototype.myPointLoop = function () {
   
   var _this = this;
 
   this.intervals.push(setInterval(function () {
 
-    var $scope = _this.$scope;
-    var mapspaceService = _this.mapspaceService;
-
-    console.log('updating my point...');
-
-    var spaceId = $scope.spaceId;
-    var myPointId = $scope.myPointId;
-
-    mapspaceService.getMyPoint().then(function (myPoint) {
-
-      $scope.myPoint = myPoint;
-
-      mapspaceService.updatePoint(spaceId, myPointId, myPoint).then(function (ref) {
-        console.log('...updated my point');
-      });
-
-    });
+    _this.eachMyPointLoop();
 
   }, 5000));
 
@@ -582,13 +595,37 @@ mapspaceApp.controller('SpaceController', [
 
 
     $scope.toMe = function ($event) {
-      map.panTo(MapSpace.getLatLngFromPoint(myPoint));
       $event.preventDefault();
+      map.panTo(MapSpace.getLatLngFromPoint(myPoint));
     };
 
     $scope.fit = function ($event) {
-      mapspace.fitPoints();
       $event.preventDefault();
+      mapspace.fitPoints();
+    };
+
+    $scope.joinSpace = function ($event) {
+      $event.preventDefault();
+      if (! $scope.leavingSpace) {
+        alert('already joined!');
+        return;
+      }
+      $scope.leavingSpace = false;
+      alert('joining...');
+      // next polling loop will add us, but we expedite
+      mapspace.eachMyPointLoop();
+    };
+
+    $scope.leaveSpace = function ($event) {
+      $event.preventDefault();
+      if ($scope.leavingSpace) {
+        alert('already gone!');
+        return;
+      }
+      $scope.leavingSpace = true;
+      alert('ok, goodbye!');
+      mapspaceService.removePoint(spaceId, $scope.myPointId).then(function () {
+      });
     };
 
     $scope.onUsersListItemMouseEnter = function ($event, id, point) {
