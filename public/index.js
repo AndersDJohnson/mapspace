@@ -312,7 +312,7 @@ var mapspaceService = mapspaceApp.service('mapspaceService', ['$q', '$firebase',
   };
 
   out.createPoint = function (spaceId, myPoint) {
-    console.log('creating point', point);
+    console.log('creating point', myPoint);
     myPoint.created = new Date();
     var pointsRef = this.getPoints(spaceId);
     var promise = pointsRef.$add(myPoint);
@@ -538,7 +538,7 @@ mapspaceApp.controller('SpaceController', [
 
 
       if (! myPointId) {
-        mapspaceService.createPoint(myPoint).then(afterCreate);
+        mapspaceService.createPoint(spaceId, myPoint).then(afterCreate);
       }
       else {
         console.log('your point id:', myPointId);
