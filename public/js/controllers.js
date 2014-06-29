@@ -78,20 +78,27 @@ mapspaceApp.controller('SpaceController', [
 
 
     $scope.usersFocused = false;
+    $scope.hideUsers = function ($event) {
+      $('.mapspace-users').removeClass('mapspace-full-width');
+      $scope.usersFocused = false;
+    };
+    $scope.showUsers = function ($event) {
+      $scope.usersFocused = true;
+      $('.mapspace-users').addClass('mapspace-full-width');
+    };
     $scope.toggleUsers = function ($event) {
       $event.preventDefault();
       if ($scope.usersFocused) {
-        $('.mapspace-users').removeClass('mapspace-full-width');
-        $scope.usersFocused = false;
+        $scope.hideUsers();
       }
       else {
-        $scope.usersFocused = true;
-        $('.mapspace-users').addClass('mapspace-full-width');
+        $scope.showUsers();
       }
     };
 
-
-    $('.dropdown-toggle').dropdown();
+    $scope.toggleNavbarDropdown = function ($event) {
+      $('#mapspace-navbar-collapse-1').collapse('toggle');
+    };
 
 
     var $map = $('<div class="mapspace-map"></div>');
@@ -366,6 +373,9 @@ mapspaceApp.controller('SpaceController', [
       var location = $scope.locations[locationId];
 
       if (location && location.position) {
+
+        $scope.hideUsers();
+
         var zoom = 18;
         var latLng = Mapper.toLatLng(location.position.coords);
         mapper.map.setView(latLng, zoom, {
