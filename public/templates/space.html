@@ -4,13 +4,17 @@
     <div class="map-container"></div>
     <div class="users">
       <h2>Users</h2>
+
+      <a ng-click="addMockUser($event)">+</a>
+
       <ul class="users-list list-unstyled">
-        <li ng-repeat="(id, point) in points">
+        <li ng-repeat="(iJoinId, iUserId) in joins">
           <div 
-            ng-mouseenter="onUsersListItemMouseEnter($event, id, point)"
-            ng-mouseleave="onUsersListItemMouseLeave($event, id, point)"
+            ng-mouseenter="onUsersListItemMouseEnter($event, iJoinId, iUserId)"
+            ng-mouseleave="onUsersListItemMouseLeave($event, iJoinId, iUserId)"
           >
-            {{ id }}
+            <a ng-click="removeUser($event, iJoinId, iUserId)">x</a>
+            <span ng-if="joinId == iJoinId">(you)</span> {{ iJoinId }}
           </div>
         </li>
       </ul>

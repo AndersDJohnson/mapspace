@@ -17,19 +17,19 @@
     </ul>
     
     <ul class="nav navbar-nav navbar-right">
-      <li ng-show="{{spaceId}}">
-        <a ng-click="toMe($event)">Show Me</a>
+      <li ng-show="spaceId">
+        <a ng-click="toMe($event)">Me</a>
       </li>
-      <li ng-show="{{spaceId}}">
-        <a ng-click="fit($event)">Fit Points</a>
+      <li ng-show="spaceId">
+        <a ng-click="fit($event)">Fit</a>
       </li>
-      <li ng-show="{{spaceId}}">
-        <a ng-click="joinSpace($event)">Join Space</a>
+      <li ng-show="spaceId && leavingSpace">
+        <a ng-click="joinSpace($event)">Join</a>
       </li>
-      <li ng-show="{{spaceId}}">
-        <a ng-click="leaveSpace($event)">Leave Space</a>
+      <li ng-show="spaceId && ! leavingSpace">
+        <a ng-click="leaveSpace($event)">Leave</a>
       </li>
-      <li ng-show="{{spaceId}}">
+      <li ng-show="spaceId">
         <a>Space: {{spaceId}}</a>
       </li>
     </ul>

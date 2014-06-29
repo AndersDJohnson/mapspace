@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "express": "^4.4.5",
-    "connect": "^2.21.1"
+    "connect": "^2.21.1",
+    "firebase": "^1.0.17"
   },
   "engines": {
     "node": "0.10.x"
