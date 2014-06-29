@@ -1,0 +1,28 @@
+{
+  "name": "map-space",
+  "version": "0.0.0",
+  "authors": [
+    "Anders D. Johnson"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "1",
+    "leaflet": "~0.7.3",
+    "font-awesome": "~4.1.0",
+    "Leaflet.awesome-markers": "~2.0.2",
+    "normalize.css": "~3.0.1",
+    "bootstrap": "~3.2.0",
+    "lodash": "~2.4.1",
+    "angular": "~1.2.18",
+    "angularfire": "~0.7.1",
+    "jquery-cookie": "~1.4.1",
+    "angular-ui-router": "~0.2.10",
+    "lodash-deep": "~1.2.1"
+  }
+}

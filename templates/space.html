@@ -1,0 +1,19 @@
+<div class="viewport">
+  <ng-include src="'templates/nav.html'"></ng-include>
+  <div class="viewport-main">
+    <div class="map-container"></div>
+    <div class="users">
+      <h2>Users</h2>
+      <ul class="users-list list-unstyled">
+        <li ng-repeat="(id, point) in points">
+          <div 
+            ng-mouseenter="onUsersListItemMouseEnter($event, id, point)"
+            ng-mouseleave="onUsersListItemMouseLeave($event, id, point)"
+          >
+            {{ id }}
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

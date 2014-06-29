@@ -1,0 +1,52 @@
+html {
+  height: 100%;
+}
+body {
+  height: 100%;
+}
+.viewport {
+  height: 100%;
+}
+.viewport-main {
+  position: fixed;
+  top: 50px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: visible;
+}
+.viewport-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  z-index: 100;
+  background-color: white;
+  overflow: visible;
+}
+.navbar-collapse {
+  /*
+  position: absolute;
+  z-index: 101;
+  */
+  background: white;
+}
+.map-container .map {
+  overflow: hidden;
+  height: 100%;
+  width: 80%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.users {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 20%;
+}
+.users-list li {
+  padding: 8px;
+}
