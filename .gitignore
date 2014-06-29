@@ -1,2 +1,3 @@
-public/bower_components
+# To simplify heroku deploys, we'll commit bower components...
+#public/bower_components
 node_modules
