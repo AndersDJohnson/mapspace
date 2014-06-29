@@ -92,20 +92,6 @@ var mapspaceService = mapspaceApp.service('mapspaceService', ['$q', '$firebase',
     })
   };
 
-  // out.watchValueAddRemove = function (uri, object, key) {
-  //   console.log('watchValueAddRemove');
-  //   var ref = this.getFirebaseRef(uri);
-  //   ref.$on('child_added', function (result) {
-  //     var name = result.snapshot.name;
-  //     var value = result.snapshot.value;
-  //     object[name] = value;
-  //   });
-  //   ref.$on('child_removed', function (result) {
-  //     var name = result.snapshot.name;
-  //     delete object[name];
-  //   });
-  // };
-
   out.getMockUsers = function (options) {
     options = options || {};
     var users = [];

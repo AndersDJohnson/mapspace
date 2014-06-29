@@ -172,41 +172,57 @@ mapspaceApp.controller('SpaceController', [
 
     watching.joinsCancellers = {};
 
-    var onJoinAdded = function (joinId, join) {
-      console.log('onJoidAdded', joinId, join);
+    var onJoinAdded = function (iJoinId, iJoin) {
+      console.log('onJoidAdded', iJoinId, iJoin);
 
-      if (watching.joins[joinId]) return;
+      if (watching.joins[iJoinId]) return;
 
       console.log('... not cancelled');
 
-      var uri = '/locations/' + join.locationId;
+      watching.joins[iJoinId] = true;
+
+      var uri = '/locations/' + iJoin.locationId;
       watching.joinsCancellers[joinId] = mapspaceService.watchValue(uri, function (result) {
         var locationId = result.snapshot.name;
         var location = result.snapshot.value;
+        
+        // // remove empty location entries
+        // if (! location) {
+        //   console.log('removing', iJoinId);
+        //   onJoinRemoved(iJoinId, iJoin);
+        //   return;
+        // }
         // console.log('location update', locationId, location);
         console.log('onJoidAdded watch value', locationId, location);
         onLocationUpdate(locationId, location);
       });
-      // console.log('now watching', uri);
-      watching.joins[joinId] = true;
+    };
+
+
+    var onJoinRemoved = function (iJoinId, iJoin) {
+      // console.log('need to remove watches for iJoin', iJoinId, iJoin, 'and its location markers');
+      if (iJoinId === iJoinId) {
+        $scope.leavingSpace = true;
+      }
+      mapper.removeMarker(iJoin.locationId);
+      var uri = '/locations/' + iJoin.locationId;
+      if (watching.joins[iJoinId]) {
+        delete watching.joins[iJoinId];
+      }
+      if (watching.joinsCancellers[iJoinId]) {
+        watching.joinsCancellers[iJoinId]();
+      }
     };
 
 
     $scope.$watchCollection('joins', function (newNames, oldNames) {
       var diff = ngUtil.watchDiff(newNames, oldNames);
       // console.log('joins diff', 'added', diff.added, 'removed', diff.removed);
-      _.each(diff.added, function (join, iJoinId) {
-        onJoinAdded(iJoinId, join);
+      _.each(diff.added, function (iJoin, iJoinId) {
+        onJoinAdded(iJoinId, iJoin);
       });
-      _.each(diff.removed, function (join, iJoinId) {
-        // console.log('need to remove watches for join', iJoinId, join, 'and its location markers');
-        if (joinId === iJoinId) {
-          $scope.leavingSpace = true;
-        }
-        mapper.removeMarker(join.locationId);
-        var uri = '/locations/' + join.locationId;
-        watching.joinsCancellers[iJoinId]();
-        delete watching.joins[joinId];
+      _.each(diff.removed, function (iJoin, iJoinId) {
+        onJoinRemoved(iJoinId, iJoin);
       });
     });
 
@@ -267,7 +283,7 @@ mapspaceApp.controller('SpaceController', [
 
     locationLoop();
 
-    mapspaceMock.mockLoop();
+    // mapspaceMock.mockLoop();
 
 
     $scope.toMe = function ($event) {
