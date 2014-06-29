@@ -13,9 +13,8 @@ mapspaceApp.controller('SpacesController', [
 
     $scope.spaces = {};
 
-    var spacesRef = mapspaceService.getSpacesRef();
-
-    spacesRef.$on('value', function (result) {
+    var uri = '/spaces';
+    mapspaceService.watchValue(uri, function (result) {
       var spaces = result.snapshot.value;
       _.merge($scope.spaces, spaces);
     });
