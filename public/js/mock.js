@@ -4,7 +4,7 @@ mapspaceApp.factory('mapspaceMock', [
   function(mapspaceService) {
     var out = {};
 
-    out.addMockUsers = function (options) {
+    out.addMockUsers = function (options, callback) {
       console.log('mapspaceServic addMockUserse', mapspaceService);
 
       var spaceId = options.spaceId;
@@ -21,7 +21,7 @@ mapspaceApp.factory('mapspaceMock', [
         });
       });
 
-      _.each(items, function (item) {
+      async.eachSeries( items, function (item, callback) {
         mapspaceService.addOrSet('/locations', item.locationId, item.location).then(function (result) {
           if (result.name) {
             item.locationId = result.name;
@@ -33,8 +33,11 @@ mapspaceApp.factory('mapspaceMock', [
               if (result.name) {
                 item.joinId = result.name;
               }
+              callback();
             });
         });
+      }, function () {
+        if (callback) callback();
       });
 
     };

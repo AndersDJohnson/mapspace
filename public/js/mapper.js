@@ -34,7 +34,9 @@ Mapper.prototype.addOrUpdateMarker = function (options) {
 
   var latLng = Mapper.toLatLng(coords);
 
-  var markerOptions = options.markerOptions || {};
+  var markerOptions = $.extend({
+    autoPan: false
+  }, options.markerOptions);
 
   var existing = this.markers[id];
   var marker;
@@ -71,15 +73,19 @@ Mapper.prototype.removeMarker = function (id) {
 };
 
 
-Mapper.prototype.fit = function (pad) {
-  pad = pad || 0.1;
+Mapper.prototype.fit = function (options) {
+  options = $.extend({
+    boundsPad: 0.1
+  }, options);
+
   var markers = _.values(this.markers);
+
   if (markers.length) {
     var group = new L.featureGroup(markers);
     var bounds = group.getBounds();
     if (bounds) {
-      bounds = bounds.pad(pad);
-      this.map.fitBounds(bounds);
+      bounds = bounds.pad(options.boundsPad);
+      this.map.fitBounds(bounds, options);
     }
   }
   else {
@@ -88,11 +94,11 @@ Mapper.prototype.fit = function (pad) {
 };
 
 
-Mapper.prototype.showMarkerPopup = function (id) {
+Mapper.prototype.showMarkerPopup = function (id, options) {
   var marker = this.markers[id];
 
   if (marker) {
-    marker.openPopup();
+    marker.openPopup(options);
   }
 };
 
