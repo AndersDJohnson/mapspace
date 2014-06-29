@@ -18,10 +18,10 @@
     
     <ul class="nav navbar-nav navbar-right">
       <li ng-show="spaceId">
-        <a ng-click="toMe($event)">Me</a>
+        <a ng-click="toMe($event)" ng-class="{disabled: ! location}">Me</a>
       </li>
       <li ng-show="spaceId">
-        <a ng-click="fit($event)">Fit</a>
+        <a ng-click="fit($event)" ng-class="{disabled: ! location}">Fit</a>
       </li>
       <li ng-show="spaceId && leavingSpace">
         <a ng-click="joinSpace($event)">Join</a>

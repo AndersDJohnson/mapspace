@@ -41,6 +41,7 @@ mapspaceApp.controller('SpaceController', [
     var setPosition = function (value) {
       setLocation({});
       $scope.location.position = value;
+      location = $scope.location;
     };
     var setLocationId = function (value) {
       locationId = $scope.locationId = value;
@@ -116,11 +117,12 @@ mapspaceApp.controller('SpaceController', [
         mapper.addOrUpdateMarker({
           id: _locationId,
           position: _location.position,
-          markerOptions: markerOptions
+          markerOptions: markerOptions,
+          popup: 'id: ' + _locationId + '<br />created: ' + _location.created
         });
       }
 
-      mapper.fit();
+      // mapper.fit();
     };
 
 
@@ -148,15 +150,19 @@ mapspaceApp.controller('SpaceController', [
 
     $scope.$watchCollection('joins', function (newNames, oldNames) {
       var diff = ngUtil.watchDiff(newNames, oldNames);
-      console.log('joins diff', 'added', diff.added, 'removed', diff.removed);
-      _.each(diff.added, function (join, joinId) {
-        onJoinAdded(joinId, join);
+      // console.log('joins diff', 'added', diff.added, 'removed', diff.removed);
+      _.each(diff.added, function (join, iJoinId) {
+        onJoinAdded(iJoinId, join);
       });
-      _.each(diff.removed, function (join, joinId) {
-        console.log('need to remove watches for join', joinId, join, 'and its location markers');
+      _.each(diff.removed, function (join, iJoinId) {
+        // console.log('need to remove watches for join', iJoinId, join, 'and its location markers');
+        if (joinId === iJoinId) {
+          $scope.leavingSpace = true;
+        }
         mapper.removeMarker(join.locationId);
         var uri = '/locations/' + join.locationId;
-        watching.joinsCancellers[joinId]();
+        watching.joinsCancellers[iJoinId]();
+        delete watching.joins[joinId];
       });
     });
 
@@ -201,7 +207,10 @@ mapspaceApp.controller('SpaceController', [
 
     joinSpace(function () {
       var zoom = 18;
-      mapper.setView(location.position, zoom);
+      if (location && location.position) {
+        var center = Mapper.toLatLng(location.position.coords);
+        mapper.setView(center, zoom);
+      }
     });
 
 
@@ -219,13 +228,24 @@ mapspaceApp.controller('SpaceController', [
 
 
     $scope.toMe = function ($event) {
+      console.log('toMe', location);
       $event.preventDefault();
-      mapper.map.panTo(MapSpace.getLatLngFromUser(user));
+
+      if (joinId && location && location.position) {
+        var zoom = 18;
+        var latLng = Mapper.toLatLng(location.position.coords);
+        mapper.setView(latLng, zoom, {
+          animate: true
+        });
+      }
+      else {
+        console.error('no location', location);
+      }
     };
 
     $scope.fit = function ($event) {
       $event.preventDefault();
-      mapspace.fitPoints();
+      mapper.fit();
     };
 
     $scope.joinSpace = function ($event) {
@@ -239,6 +259,14 @@ mapspaceApp.controller('SpaceController', [
 
       joinSpace(function () {
         $scope.leavingSpace = false;
+
+        if (location && location.position) {
+          var zoom = 18;
+          var center = Mapper.toLatLng(location.position.coords);
+          mapper.setView(center, zoom, {
+            animate: true
+          })
+        }
       });
     };
 
@@ -253,6 +281,11 @@ mapspaceApp.controller('SpaceController', [
 
       mapspaceService.remove('/spaces/' + spaceId + '/joins/' + joinId).then(function () {
         $scope.leavingSpace = true;
+
+        locationId = $scope.locationId = null;
+        location = $scope.location = null;
+        joinId = $scope.joinId = null;
+        join = $scope.join = null;
       });
     };
 
@@ -277,12 +310,27 @@ mapspaceApp.controller('SpaceController', [
       });
     }
 
-    $scope.onUsersListItemMouseEnter = function ($event, id, point) {
-      // mapper.showMarkerPopup(id);
+    $scope.onUsersListItemClick = function ($event, joinId, join) {
+      var locationId = join.locationId;
+      var location = $scope.locations[locationId];
+
+      if (location && location.position) {
+        var zoom = 18;
+        var latLng = Mapper.toLatLng(location.position.coords);
+        mapper.map.setView(latLng, zoom, {
+          animate: true
+        });
+      }
     };
 
-    $scope.onUsersListItemMouseLeave = function ($event, id, point) {
-      // mapper.closeMarkerPopup(id);
+    $scope.onUsersListItemMouseEnter = function ($event, joinId, join) {
+      var locationId = join.locationId;
+      mapper.showMarkerPopup(locationId);
+    };
+
+    $scope.onUsersListItemMouseLeave = function ($event, joinId, join) {
+      var locationId = join.locationId;
+      mapper.closeMarkerPopup(locationId);
     };
 
   }

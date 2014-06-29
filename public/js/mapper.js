@@ -19,9 +19,9 @@ var Mapper = function (options) {
   return this;
 };
 
-Mapper.prototype.setView = function (position, zoom) {
-  var center = Mapper.toLatLng(position.coords);
-  this.map.setView( center, zoom );
+Mapper.prototype.setView = function (center, zoom, options) {
+  // var center = Mapper.toLatLng(position.coords);
+  this.map.setView(center, zoom, options);
 };
 
 Mapper.prototype.addOrUpdateMarker = function (options) {
@@ -30,6 +30,7 @@ Mapper.prototype.addOrUpdateMarker = function (options) {
   var coords = position.coords;
 
   var id = options.id;
+  var popup = options.popup;
 
   var latLng = Mapper.toLatLng(coords);
 
@@ -44,6 +45,12 @@ Mapper.prototype.addOrUpdateMarker = function (options) {
   }
   else {
     marker = L.marker(latLng, markerOptions);
+
+    if (popup) {
+      console.log('bind popup', popup);
+      marker.bindPopup(popup);
+    }
+
     this.markers[id] = marker;
   }
 
@@ -57,8 +64,6 @@ Mapper.prototype.addOrUpdateMarker = function (options) {
 Mapper.prototype.removeMarker = function (id) {
   var marker = this.markers[id];
 
-  console.log('removing marker', id);
-
   if (marker) {
     this.map.removeLayer(marker);
     delete this.markers[id];
@@ -69,16 +74,41 @@ Mapper.prototype.removeMarker = function (id) {
 Mapper.prototype.fit = function (pad) {
   pad = pad || 0.1;
   var markers = _.values(this.markers);
-  if (markers) {
+  if (markers.length) {
     var group = new L.featureGroup(markers);
     var bounds = group.getBounds();
-    bounds = bounds.pad(pad);
-    this.map.fitBounds(bounds);
+    if (bounds) {
+      bounds = bounds.pad(pad);
+      this.map.fitBounds(bounds);
+    }
+  }
+  else {
+    console.error('no markers to fit');
+  }
+};
+
+
+Mapper.prototype.showMarkerPopup = function (id) {
+  var marker = this.markers[id];
+
+  if (marker) {
+    marker.openPopup();
+  }
+};
+
+Mapper.prototype.closeMarkerPopup = function (id) {
+  var marker = this.markers[id];
+
+  if (marker) {
+    marker.closePopup();
   }
 };
 
 
 Mapper.toLatLng = function (position) {
+  if (position.lat && position.lng) {
+    return position;
+  }
   return {
     lat: position.latitude,
     lng: position.longitude

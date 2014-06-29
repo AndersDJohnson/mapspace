@@ -5,15 +5,16 @@
     <div class="users">
       <h2>Users</h2>
 
-      <a ng-click="addMockUser($event)">+</a>
+      <button ng-click="addMockUser($event)">+</button>
 
       <ul class="users-list list-unstyled">
-        <li ng-repeat="(iJoinId, iUserId) in joins">
+        <li ng-repeat="(iJoinId, iJoin) in joins">
           <div 
-            ng-mouseenter="onUsersListItemMouseEnter($event, iJoinId, iUserId)"
-            ng-mouseleave="onUsersListItemMouseLeave($event, iJoinId, iUserId)"
+            ng-mouseenter="onUsersListItemMouseEnter($event, iJoinId, iJoin)"
+            ng-mouseleave="onUsersListItemMouseLeave($event, iJoinId, iJoin)"
+            ng-click="onUsersListItemClick($event, iJoinId, iJoin)"
           >
-            <a ng-click="removeUser($event, iJoinId, iUserId)">x</a>
+            <button ng-click="removeUser($event, iJoinId, iJoin)">x</button>
             <span ng-if="joinId == iJoinId">(you)</span> {{ iJoinId }}
           </div>
         </li>
