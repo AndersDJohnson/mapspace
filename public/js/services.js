@@ -70,7 +70,7 @@ var mapspaceService = mapspaceApp.service('mapspaceService', ['$q', '$firebase',
     return this.watchValue(uri, function (result) {
       var items = result.snapshot.value;
 
-      console.log('watchValueAddRemove', items, object[objectKey]);
+      // console.log('watchValueAddRemove', items, object[objectKey]);
 
       if (items) {
         // add

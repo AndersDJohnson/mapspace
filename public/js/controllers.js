@@ -26,10 +26,14 @@ mapspaceApp.controller('SpaceController', [
   '$scope', '$rootScope', '$stateParams', 'mapspaceService', 'mapspaceMock',
   function ($scope, $rootScope, $stateParams, mapspaceService, mapspaceMock) {
 
+    var spaceId = $scope.spaceId = null;
+    spaceId = $scope.spaceId = $stateParams.id;
+
+
     var locationCookieName = 'mapspace_locationId';
     var joinCookieName = 'mapspace_s' + spaceId + '_joinId';
 
-    var spaceId = $scope.spaceId = null;
+
     var locationId = $scope.userId = null;
     var joinId = $scope.joinId = null;
     var location = $scope.location = null;
@@ -51,7 +55,6 @@ mapspaceApp.controller('SpaceController', [
       $.cookie(joinCookieName, joinId);
     };
 
-    spaceId = $scope.spaceId = $stateParams.id;
 
     setJoinId($.cookie(joinCookieName));
     setLocationId($.cookie(locationCookieName));
@@ -136,7 +139,7 @@ mapspaceApp.controller('SpaceController', [
       if (_locationId === locationId) {
         you = '(you) '
       }
-      return 'ID: ' + you + _locationId + '<br />at: ' + formattedTimestamp;
+      return '<b>ID:</b> ' + you + _locationId + '<br /><b>At:</b> ' + formattedTimestamp;
     };
 
 
@@ -164,44 +167,57 @@ mapspaceApp.controller('SpaceController', [
         });
       }
 
-      // mapper.fit({
-      //   animate: true
-      // });
+      mapper.fit({
+        animate: true
+      });
     };
 
 
     watching.joinsCancellers = {};
 
     var onJoinAdded = function (iJoinId, iJoin) {
-      console.log('onJoidAdded', iJoinId, iJoin);
+      // console.log('onJoidAdded', iJoinId, iJoin);
 
       if (watching.joins[iJoinId]) return;
 
-      console.log('... not cancelled');
+      console.log('onJoidAdded', iJoinId, iJoin);
+      // console.log('... not cancelled');
 
       watching.joins[iJoinId] = true;
 
       var uri = '/locations/' + iJoin.locationId;
       watching.joinsCancellers[joinId] = mapspaceService.watchValue(uri, function (result) {
+
         var locationId = result.snapshot.name;
         var location = result.snapshot.value;
-        
-        // // remove empty location entries
-        // if (! location) {
-        //   console.log('removing', iJoinId);
-        //   onJoinRemoved(iJoinId, iJoin);
-        //   return;
-        // }
-        // console.log('location update', locationId, location);
-        console.log('onJoidAdded watch value', locationId, location);
-        onLocationUpdate(locationId, location);
+
+        console.log('location watch value triggered', locationId, location);
+
+        // remove empty location entries
+        if (! location) {
+          var deadJoins = {};
+          _.each($scope.joins, function (join, joinId) {
+            if (join.locationId === locationId) {
+              deadJoins[joinId] = join;
+            }
+          });
+          _.each(deadJoins, function (join, joinId) {
+            mapspaceService.remove('/spaces/' + spaceId + '/joins/' + joinId).then(function (result) {
+              console.log('removed dead join', joinId);
+            });
+          });
+        }
+        else {
+          onLocationUpdate(locationId, location);
+        }
+
       });
     };
 
 
     var onJoinRemoved = function (iJoinId, iJoin) {
-      // console.log('need to remove watches for iJoin', iJoinId, iJoin, 'and its location markers');
-      if (iJoinId === iJoinId) {
+      console.log('join removed', iJoinId, iJoin);
+      if (iJoinId === joinId) {
         $scope.leavingSpace = true;
       }
       mapper.removeMarker(iJoin.locationId);
@@ -217,7 +233,7 @@ mapspaceApp.controller('SpaceController', [
 
     $scope.$watchCollection('joins', function (newNames, oldNames) {
       var diff = ngUtil.watchDiff(newNames, oldNames);
-      // console.log('joins diff', 'added', diff.added, 'removed', diff.removed);
+      console.info('JOINS DIFF', 'added', diff.added, 'removed', diff.removed);
       _.each(diff.added, function (iJoin, iJoinId) {
         onJoinAdded(iJoinId, iJoin);
       });
@@ -340,12 +356,12 @@ mapspaceApp.controller('SpaceController', [
         return;
       }
       // alert('ok, goodbye!');
+      $scope.leavingSpace = true;
+
+      console.log('joinId', joinId);
 
       mapspaceService.remove('/spaces/' + spaceId + '/joins/' + joinId).then(function () {
-        $scope.leavingSpace = true;
 
-        locationId = $scope.locationId = null;
-        location = $scope.location = null;
         joinId = $scope.joinId = null;
         join = $scope.join = null;
 
@@ -355,16 +371,18 @@ mapspaceApp.controller('SpaceController', [
       });
     };
 
-    $scope.removeUser = function ($event, joinId, userId) {
+    $scope.removeUser = function ($event, iJoinId, iLocationId) {
       $event.preventDefault();
       $event.stopPropagation();
 
-      if (userId === locationId) {
+      if (iLocationId === locationId) {
         $scope.leavingSpace = true;
       };
 
-      mapspaceService.remove('/spaces/' + spaceId + '/joins/' + joinId).then(function () {
-
+      mapspaceService.remove('/spaces/' + spaceId + '/joins/' + iJoinId).then(function () {
+        mapper.fit({
+          animate: true
+        });
       });
     };
 

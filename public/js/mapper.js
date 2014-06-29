@@ -30,7 +30,8 @@ Mapper.prototype.addOrUpdateMarker = function (options) {
   var coords = position.coords;
 
   var id = options.id;
-  var popup = options.popup;
+  var popup = options.popup
+  var icon = options.icon;
 
   var latLng = Mapper.toLatLng(coords);
 
@@ -48,12 +49,17 @@ Mapper.prototype.addOrUpdateMarker = function (options) {
   else {
     marker = L.marker(latLng, markerOptions);
 
-    if (popup) {
-      console.log('bind popup', popup);
-      marker.bindPopup(popup);
-    }
-
     this.markers[id] = marker;
+  }
+
+  if (popup) {
+    // console.log('bind popup', popup);
+    marker.bindPopup(popup);
+  }
+
+  if (icon) {
+    // console.log('set icon', icon);
+    marker.setIcon(icon);
   }
 
   if (! existing) {

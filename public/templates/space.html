@@ -39,7 +39,7 @@
             ng-click="onUsersListItemClick($event, iJoinId, iJoin)"
           >
             <button ng-click="removeUser($event, iJoinId, iJoin)">x</button>
-            <span ng-if="joinId == iJoinId">(you)</span> {{ iJoinId }}
+            <span ng-if="joinId == iJoinId">(u)</span> <br /> jid:{{ iJoinId }} <br /> lid: {{ iJoin.locationId }}
           </div>
         </li>
       </ul>
