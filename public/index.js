@@ -389,7 +389,11 @@ var mapspaceService = mapspaceApp.service('mapspaceService', ['$q', '$firebase',
       deferred.reject(err);
     };
 
-    navigator.geolocation.getCurrentPosition(onLocation, onError);
+    var geolocationOptions = {
+      enableHighAccuracy: true
+    };
+
+    navigator.geolocation.getCurrentPosition(onLocation, onError, geolocationOptions);
 
     return deferred.promise;
   };
