@@ -72,9 +72,32 @@ mapspaceApp.controller('SpaceController', [
     };
 
 
-    var $mapContainer = $('.map-container');
-    var $map = $('<div class="map"></div>');
+    $scope.preventDefault = function ($event) {
+      $event.preventDefault();
+    };
+
+
+    $scope.usersFocused = false;
+    $scope.toggleUsers = function ($event) {
+      $event.preventDefault();
+      if ($scope.usersFocused) {
+        $('.mapspace-users').removeClass('mapspace-full-width');
+        $scope.usersFocused = false;
+      }
+      else {
+        $scope.usersFocused = true;
+        $('.mapspace-users').addClass('mapspace-full-width');
+      }
+    };
+
+
+    $('.dropdown-toggle').dropdown();
+
+
+    var $map = $('<div class="mapspace-map"></div>');
     $map.attr('data-mapspace-space-id', spaceId);
+
+    var $mapContainer = $('.mapspace-map-container');
     $mapContainer.html($map);
 
     var mapper = new Mapper({
@@ -312,6 +335,7 @@ mapspaceApp.controller('SpaceController', [
 
     $scope.removeUser = function ($event, joinId, userId) {
       $event.preventDefault();
+      $event.stopPropagation();
 
       if (userId === locationId) {
         $scope.leavingSpace = true;
@@ -323,6 +347,8 @@ mapspaceApp.controller('SpaceController', [
     };
 
     $scope.addMockUser = function ($event) {
+      $event.preventDefault();
+
       mapspaceMock.addMockUsers({
         spaceId: spaceId,
         count: 1,

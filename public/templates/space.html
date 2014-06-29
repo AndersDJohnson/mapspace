@@ -1,13 +1,37 @@
 <div class="viewport">
   <ng-include src="'templates/nav.html'"></ng-include>
   <div class="viewport-main">
-    <div class="map-container"></div>
-    <div class="users">
-      <h2>Users</h2>
 
-      <button ng-click="addMockUser($event)">+</button>
+    <div class="mapspace-map-container"></div>
 
-      <ul class="users-list list-unstyled">
+    <div class="mapspace-users">
+
+      <nav id="mapspace-navbar" class="navbar navbar-default navbar-static" role="navigation">
+        <div class="container-fluid">
+          <div class="dropdown pull-right">
+            <button class="navbar-toggle" type="button" class="dropdown-toggle" data-toggle="dropdown"
+              ng-click="preventDefault($event)"
+              style="display: block;">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <ul id="menu1" class="dropdown-menu" role="menu" aria-labelledby="drop4">
+              <li role="presentation">
+                <a role="menuitem" tabindex="-1" href="#" ng-click="addMockUser($event)">
+                  Add
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="navbar-header">
+            <span class="navbar-brand" href="#">Users</span>
+          </div><!-- /.nav-collapse -->
+        </div><!-- /.container-fluid -->
+      </nav>
+
+      <ul class="mapspace-users-list list-unstyled">
         <li ng-repeat="(iJoinId, iJoin) in joins">
           <div 
             ng-mouseenter="onUsersListItemMouseEnter($event, iJoinId, iJoin)"
@@ -19,6 +43,8 @@
           </div>
         </li>
       </ul>
+
     </div>
+
   </div>
 </div>

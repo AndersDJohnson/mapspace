@@ -1,15 +1,20 @@
 <nav class="viewport-header navbar navbar-default" role="navigation">
   <div class="navbar-header">
-    <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#ms-navbar-collapse-1">
+    <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#mapspace-navbar-collapse-1">
       <span class="sr-only">Toggle navigation</span>
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
     </button>
+    <button class="pull-right visible-xs mapspace-navbar-btn-user" type="button"
+      ng-click="toggleUsers($event)"
+    >
+      <i class="fa fa-user"></i>
+    </button>
     <a href="#/" class="navbar-brand">MapSpace</a>
   </div>
-  <div class="collapse navbar-collapse" id="ms-navbar-collapse-1">
-    
+  <div class="collapse navbar-collapse" id="mapspace-navbar-collapse-1">
+
     <ul class="nav navbar-nav">
       <li>
         <a href="#/spaces">Spaces</a>
@@ -33,5 +38,6 @@
         <a>Space: {{spaceId}}</a>
       </li>
     </ul>
+
   </nav>
 </div>
