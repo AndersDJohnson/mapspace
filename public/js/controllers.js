@@ -112,17 +112,23 @@ mapspaceApp.controller('SpaceController', [
     });
 
 
-    var positionReady = function (spaceId, joinId, locationId, callback) {
-      // if (joinId) {
-      //   return false;
-      // }
 
-      // if ($scope.leavingSpace) {
-      //   return;
-      // }
-      // $scope.leavingSpace = false;
+    var makePopup = function (_locationId, _location) {
+      var timestamp = _location.position.timestamp;
+      var formattedTimestamp = moment(timestamp).format();
+      var you = '';
+      if (_locationId === locationId) {
+        you = '(you) '
+      }
+      return '<b>ID:</b> ' + you + _locationId + '<br /><b>At:</b> ' + formattedTimestamp;
+    };
+
+
+
+    var positionReady = function (spaceId, joinId, locationId, callback) {
 
       if ($scope.joiningSpace) {
+        console.log('cannot join space when already joining')
         return;
       }
 
@@ -147,18 +153,13 @@ mapspaceApp.controller('SpaceController', [
     };
 
 
-    var makePopup = function (_locationId, _location) {
-      var timestamp = _location.position.timestamp;
-      var formattedTimestamp = moment(timestamp).format();
-      var you = '';
-      if (_locationId === locationId) {
-        you = '(you) '
+
+    var onLocationUpdate = function (iJoinId, _locationId, _location) {
+
+      if (! $scope.joins[iJoinId]) {
+        return;
       }
-      return '<b>ID:</b> ' + you + _locationId + '<br /><b>At:</b> ' + formattedTimestamp;
-    };
 
-
-    var onLocationUpdate = function (_locationId, _location) {
       $scope.locations[_locationId] = _location;
 
       var markerOptions = {};
@@ -227,7 +228,7 @@ mapspaceApp.controller('SpaceController', [
           });
         }
         else {
-          onLocationUpdate(locationId, location);
+          onLocationUpdate(iJoinId, locationId, location);
         }
 
       });
@@ -261,21 +262,6 @@ mapspaceApp.controller('SpaceController', [
     });
 
 
-    // $scope.$watch('locations', function (newNames, oldNames) {
-    //   var diff = ngUtil.watchDiff(newNames, oldNames);
-
-    //   _.each(diff.added, function (location, locationId) {
-    //     onLocationAdded(locationId, location);
-    //   });
-    //   _.each(diff.removed, function (location, locationId) {
-    //     console.log('need to remove markers for location', joinId, join);
-    //   });
-    // });
-
-    // var joinsRef = mapspaceService.getFirebaseRef('/spaces/' + spaceId + '/joins');
-    // joinsRef.on('value').then(result)
-
-    // mapspaceService.watchValueExtend('/spaces/' + spaceId + '/joins', $scope, 'joins');
     mapspaceService.watchValueAddRemove('/spaces/' + spaceId + '/joins', $scope, 'joins');
 
 
@@ -291,12 +277,20 @@ mapspaceApp.controller('SpaceController', [
 
 
     var joinSpace = function (callback) {
+
+      if ($scope.joiningSpace) {
+        console.log('joining? no');
+        return false;
+      }
+
       mapspaceService.getCurrentPosition().then(function (position) {
         pushLocation(position, function () {
+          console.log('location pushed');
           positionReady(spaceId, joinId, locationId, callback);
         });
       });
     };
+
 
     joinSpace(function () {
       var zoom = 18;
@@ -307,8 +301,9 @@ mapspaceApp.controller('SpaceController', [
     });
 
 
-    var removeUser = function (iJoinId, iLocationId) {
 
+
+    var removeUser = function (iJoinId, iLocationId) {
       var isMe = iLocationId === locationId;
 
       if (isMe) {
@@ -321,8 +316,8 @@ mapspaceApp.controller('SpaceController', [
       mapspaceService.remove('/spaces/' + spaceId + '/joins/' + iJoinId).then(function () {
 
         if (isMe) {
-          joinId = $scope.joinId = null;
-          join = $scope.join = null;
+          // joinId = $scope.joinId = null;
+          // join = $scope.join = null;
         }
 
         mapper.fit({
