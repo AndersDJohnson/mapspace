@@ -95,7 +95,7 @@ Mapper.prototype.fit = function (options) {
     }
   }
   else {
-    console.error('no markers to fit');
+    console.log('no markers to fit');
   }
 };
 
