@@ -189,7 +189,7 @@ poll.space = function (spaceId, callback) {
             );
           }
           else {
-            callback(err, deleteIds);
+            callback(null, deleteIds);
           }
         }
       );
