@@ -29,10 +29,10 @@
         <a ng-click="fit($event); toggleNavbarDropdown($event)" ng-class="{disabled: ! location}">Fit</a>
       </li>
       <li ng-show="spaceId && leavingSpace">
-        <a ng-click="joinSpace($event); toggleNavbarDropdown($event)">Join</a>
+        <a ng-click="leavingSpace && joinSpace($event); toggleNavbarDropdown($event)">Join</a>
       </li>
       <li ng-show="spaceId && ! leavingSpace">
-        <a ng-click="leaveSpace($event); toggleNavbarDropdown($event)">Leave</a>
+        <a ng-click="(! leavingSpace) && leaveSpace($event); toggleNavbarDropdown($event)">Leave</a>
       </li>
       <li ng-show="spaceId">
         <a>Space: {{spaceId}}</a>
