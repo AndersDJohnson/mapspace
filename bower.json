@@ -25,6 +25,7 @@
     "angular-ui-router": "~0.2.10",
     "lodash-deep": "~1.2.1",
     "async": "~0.9.0",
-    "moment": "~2.7.0"
+    "moment": "~2.7.0",
+    "angular-moment": "~0.7.1"
   }
 }

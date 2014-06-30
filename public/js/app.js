@@ -1,4 +1,4 @@
-var mapspaceApp = angular.module('mapspaceApp', ['ui.router', 'firebase']);
+var mapspaceApp = angular.module('mapspaceApp', ['ui.router', 'firebase', 'angularMoment']);
 
 
 mapspaceApp.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {

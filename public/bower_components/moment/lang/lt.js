@@ -23,7 +23,7 @@
         "y" : "metai_metų_metus",
         "yy": "metai_metų_metus"
     },
-    weekDays = "sekmadienis_pirmadienis_antradienis_trečiadienis_ketvirtadienis_penktadienis_šeštadienis".split("_");
+    weekDays = "pirmadienis_antradienis_trečiadienis_ketvirtadienis_penktadienis_šeštadienis_sekmadienis".split("_");
 
     function translateSeconds(number, withoutSuffix, key, isFuture) {
         if (withoutSuffix) {
@@ -62,7 +62,7 @@
 
     function relativeWeekDay(moment, format) {
         var nominative = format.indexOf('dddd HH:mm') === -1,
-            weekDay = weekDays[moment.day()];
+            weekDay = weekDays[moment.weekday()];
 
         return nominative ? weekDay : weekDay.substring(0, weekDay.length - 2) + "į";
     }

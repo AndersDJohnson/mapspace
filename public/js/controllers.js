@@ -19,8 +19,8 @@ mapspaceApp.controller('SpacesController', [
 
 
 mapspaceApp.controller('SpaceController', [
-  '$scope', '$rootScope', '$stateParams', 'mapspaceService', 'mapspaceMock',
-  function ($scope, $rootScope, $stateParams, mapspaceService, mapspaceMock) {
+  '$scope', '$rootScope', '$stateParams', '$compile', 'mapspaceService', 'mapspaceMock',
+  function ($scope, $rootScope, $stateParams, $compile, mapspaceService, mapspaceMock) {
 
     var spaceId = $scope.spaceId = null;
     spaceId = $scope.spaceId = $stateParams.id;
@@ -112,7 +112,6 @@ mapspaceApp.controller('SpaceController', [
     });
 
 
-
     var makePopup = function (_locationId, _location) {
       var timestamp = _location.position.timestamp;
       var formattedTimestamp = moment(timestamp).format();
@@ -120,7 +119,19 @@ mapspaceApp.controller('SpaceController', [
       if (_locationId === locationId) {
         you = '(you) '
       }
-      return '<b>ID:</b> ' + you + _locationId + '<br /><b>At:</b> ' + formattedTimestamp;
+      var $popup = $('<div></div>');
+      $popup.html([
+        '<b>lid:</b> {{ locationId }}<br />',
+        '<b>jid:</b> {{ joinId }}<br />',
+        '<b>When:</b> <span am-time-ago="location.position.timestamp" ',
+          'title="{{ location.position.timestamp | amDateFormat }}"></span>',
+      ].join(''));
+      var popup = $popup.get(0);
+
+      // bind to the scope
+      var fn = $compile(popup)($scope);
+
+      return popup;
     };
 
 
