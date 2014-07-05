@@ -11,32 +11,78 @@ var mapspaceService = mapspaceApp.service('mapspaceService', ['$q', '$firebase',
     return $firebase(ref);
   };
 
-  out.add = function (uri, data) {
-    var ref = this.getFirebaseRef(uri);
-    return ref.$add(data);
+  out._connectedRef = null;
+
+  out.getConnectedRef = function () {
+    if (! out._connectedRef) {
+      var $ref = this.getFirebaseRef('/.info/connected');
+
+      var ref = $ref.$getRef();
+
+      ref.on('value', function (snap) {
+        if (snap.val() === true) {
+          con.onDisconnect().remove();
+        }
+      });
+
+      out._connectedRef = ref;
+    }
+    return out._connectedRef;
   };
 
-  out.set = function (uri, data) {
-    var ref = this.getFirebaseRef(uri);
-    return ref.$set(data);
+  out.add = function (uri, data, options) {
+    var _this = this;
+    options = _.extend({}, options);
+    var $ref = this.getFirebaseRef(uri);
+    var promise = $ref.$add(data);
+    promise.then(function (snap) {
+      console.log('setting removal');
+      var name = snap.name();
+      var $ref = _this.getFirebaseRef(uri + '/' + name);
+      var ref = $ref.$getRef();
+      if (options.onDisconnect === 'remove') {
+        ref.onDisconnect().remove();
+      }
+    });
+    return promise;
   };
 
-  out.remove = function (uri, data) {
-    var ref = this.getFirebaseRef(uri);
-    return ref.$remove(data);
+  out.set = function (uri, data, options) {
+    options = _.extend({}, options);
+    var $ref = this.getFirebaseRef(uri);
+    var ref = $ref.$getRef();
+    var promise = $ref.$set(data);
+    promise.then(function () {
+      if (options.onDisconnect === 'remove') {
+        ref.onDisconnect().remove();
+      }
+    });
+    return promise;
   };
 
-  out.addOrSet = function (uri, name, data) {
+  out.remove = function (uri, data, options) {
+    options = _.extend({}, options);
+    var $ref = this.getFirebaseRef(uri);
+    var ref = $ref.$getRef();
+    if (options.onDisconnect === 'remove') {
+      ref.onDisconnect().remove();
+    }
+    return $ref.$remove(data);
+  };
+
+  out.addOrSet = function (uri, name, data, options) {
+    options = _.extend({}, options);
+
     var deferred = $q.defer();
     if (name) {
-      this.set(uri + '/' + name, data).then(function (snapshot) {
+      this.set(uri + '/' + name, data, options).then(function (snapshot) {
         deferred.resolve({
           snapshot: snapshot
         });
       });
     }
     else {
-      this.add(uri, data).then(function (snapshot) {
+      this.add(uri, data, options).then(function (snapshot) {
         name = snapshot.name();
 
         deferred.resolve({

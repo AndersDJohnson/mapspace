@@ -26,8 +26,8 @@ mapspaceApp.controller('SpaceController', [
     spaceId = $scope.spaceId = $stateParams.id;
 
 
-    var locationCookieName = 'mapspace_locationId';
-    var joinCookieName = 'mapspace_s' + spaceId + '_joinId';
+    // var locationCookieName = 'mapspace_locationId';
+    // var joinCookieName = 'mapspace_s' + spaceId + '_joinId';
 
 
     var locationId = $scope.userId = null;
@@ -44,16 +44,16 @@ mapspaceApp.controller('SpaceController', [
     };
     var setLocationId = function (value) {
       locationId = $scope.locationId = value;
-      $.cookie(locationCookieName, locationId);
+      // $.cookie(locationCookieName, locationId);
     };
     var setJoinId = function (value) {
       joinId = $scope.joinId = value;
-      $.cookie(joinCookieName, joinId);
+      // $.cookie(joinCookieName, joinId);
     };
 
 
-    setJoinId($.cookie(joinCookieName));
-    setLocationId($.cookie(locationCookieName));
+    // setJoinId($.cookie(joinCookieName));
+    // setLocationId($.cookie(locationCookieName));
 
 
     $scope.joins = {};
@@ -135,18 +135,22 @@ mapspaceApp.controller('SpaceController', [
     };
 
 
+    var locationLooping = false;
+
 
     var positionReady = function (spaceId, joinId, locationId, callback) {
 
-      if ($scope.joiningSpace) {
-        console.log('cannot join space when already joining')
-        return;
-      }
+      // if ($scope.joiningSpace) {
+      //   console.log('cannot join space when already joining')
+      //   return;
+      // }
 
       $scope.joiningSpace = true;
 
       mapspaceService.addOrSet('/spaces/' + spaceId + '/joins', joinId, {
         locationId: locationId
+      }, {
+        onDisconnect: 'remove'
       })
         .then(function (result) {
           $scope.joiningSpace = false;
@@ -160,6 +164,9 @@ mapspaceApp.controller('SpaceController', [
     var joinReady = function (spaceId, joinId, locationId, callback) {
       $scope.joiningSpace = false;
       console.log('joined!');
+      if (! locationLooping) {
+        locationLoop();
+      }
       if (callback) callback();
     };
 
@@ -278,7 +285,9 @@ mapspaceApp.controller('SpaceController', [
 
     var pushLocation = function (position, callback) {
       setPosition(position);
-      mapspaceService.addOrSet('/locations', locationId, location).then(function (result) {
+      mapspaceService.addOrSet('/locations', locationId, location, {
+        onDisconnect: 'remove'
+      }).then(function (result) {
         if (result.name) {
           setLocationId(result.name);
         }
@@ -293,6 +302,9 @@ mapspaceApp.controller('SpaceController', [
         console.log('joining? no');
         return false;
       }
+
+      $scope.joiningSpace = true;
+      $scope.leavingSpace = false;
 
       mapspaceService.getCurrentPosition().then(function (position) {
         pushLocation(position, function () {
@@ -339,17 +351,19 @@ mapspaceApp.controller('SpaceController', [
 
 
     var locationLoop = function () {
+      locationLooping = true;
+      console.log('location loop');
       mapspaceService.getCurrentPosition().then(function (position) {
         console.log('position', (new Date()));
-        if (! $scope.leavingSpace) {
+        if (! $scope.leavingSpace && ! $scope.joiningSpace) {
           pushLocation(position, function () {
-              setTimeout(locationLoop, 5000);
+            positionReady(spaceId, joinId, locationId);
           });
+
         }
+        setTimeout(locationLoop, 5000);
       });
     };
-
-    locationLoop();
 
     // mapspaceMock.mockLoop();
 
@@ -383,7 +397,6 @@ mapspaceApp.controller('SpaceController', [
       if (! $scope.leavingSpace) {
         return;
       }
-      $scope.leavingSpace = false;
 
       joinSpace(function () {
         if (location && location.position) {
