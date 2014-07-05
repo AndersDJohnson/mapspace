@@ -9,7 +9,7 @@ poll.start = function () {
 
   poll.baseUrl = 'https://mapspace-beta.firebaseio.com';
 
-  poll.locationsInterval = 30000;
+  poll.locationsInterval = 5000;
 
   poll.rootRef = new Firebase( poll.baseUrl + '/' );
   poll.locationsRef = new Firebase( poll.baseUrl + '/locations' );
@@ -24,43 +24,42 @@ poll.each = function () {
   console.log('each');
 
   // one minute
-  poll.locationsMaxAge = 1000 * 60;
+  poll.locationsMaxAge = 1000 * 60 * 2;
 
   poll.locations();
 
 };
 
 
-poll.shouldKeepLocation = function (location, params) {
+poll.shouldRemoveLocation = function (location, params) {
   params = params || {};
+  var oldest = params.oldest;
 
   if (! location) return false;
 
   var position = location.position;
 
-  // locations without position are invalid
   // TODO: Make sure location cannot be not missing position field just after created by client.
   if (! position) {
-    return false;
+    return 'locations without position are invalid';
   }
 
-  // positions without timestamp are invalid
   // TODO: Is this supported in all Geolocation API browsers?
   var timestamp = position.timestamp;
   if (! timestamp) {
-    return false;
+    return 'positions without timestamp are invalid';
   }
 
   // if oldest is provided, then...
-  if ( params.oldest && params.oldest !== 0 ) {
-    // ...if older than oldest allowed, then invalid
-    if ( timestamp < params.oldest ) {
-      return false;
+  if ( oldest && oldest !== 0 ) {
+    // ...and this is older, then invalid
+    if ( timestamp < oldest ) {
+      return 'older than oldest allowed ( ' + timestamp + ' < ' + oldest + ' )';
     }
   }
 
-  return true;
-}
+  return false;
+};
 
 
 /**
@@ -80,15 +79,18 @@ poll.locations = function () {
 
     _.each(locations, function (location, id) {
 
-      var keep = poll.shouldKeepLocation(location, {
+      poll.checkMockLocation(id, location);
+
+      var remove = poll.shouldRemoveLocation(location, {
         oldest: oldest
       });
 
-      if (keep) {
-        keepIds.push(id);
+      if (remove) {
+        console.log('removing', id, ': ', remove);
+        deleteIds.push(id);
       }
       else {
-        deleteIds.push(id);
+        keepIds.push(id);
       }
 
     });
@@ -111,6 +113,32 @@ poll.locations = function () {
 };
 
 
+poll.checkMockLocation = function (id, location) {
+  if (location.mock) {
+    console.log('mock location', location);
+    var position = location.position;
+    if (position) {
+      var coords = position.coords;
+      if (coords) {
+        location.position = {
+          coords: {
+            accuracy: Math.random() * 80,
+            latitude: coords.latitude + (0.001 * (0.5 - Math.random())),
+            longitude: coords.longitude + (0.001 * (0.5 - Math.random()))
+          },
+          timestamp: Date.now()
+        };
+        console.log('updated position');
+        var locationRef = poll.locationsRef.child(id);
+        locationRef.set(location, function () {
+          console.log('ok done');
+        });
+      }
+    }
+  }
+};
+
+
 /**
  * This will remove joins from a space if they no longer correspond to a valid location.
  */
@@ -129,11 +157,10 @@ poll.space = function (spaceId, callback) {
     var space = result.val();
 
     if (! space) {
+      console.error('no space found');
       callback();
       return;
     }
-
-    console.log('space', space);
 
     var joins = space.joins;
 
@@ -144,6 +171,7 @@ poll.space = function (spaceId, callback) {
           var join = joins[joinId];
 
           if (! join) {
+            console.log('removing', id, ': ', 'no join');
             deleteIds.push(joinId);
             callback();
             return;
@@ -152,6 +180,7 @@ poll.space = function (spaceId, callback) {
           var locationId = join.locationId;
 
           if (! locationId) {
+            console.log('removing', id, ': ', 'no locationId');
             deleteIds.push(joinId);
             callback();
             return;
@@ -161,8 +190,9 @@ poll.space = function (spaceId, callback) {
 
           locationRef.once('value', function (result) {
             var location = result.val();
-            var keep = poll.shouldKeepLocation(location);
-            if (! keep) {
+            var remove = poll.shouldRemoveLocation(location);
+            if (remove) {
+              console.log('removing', id, ': ', remove);
               deleteIds.push(joinId);
               callback();
             }
@@ -183,7 +213,6 @@ poll.space = function (spaceId, callback) {
                 });
               },
               function (err) {
-                console.log('ok');
                 callback(err, deleteIds);
               }
             );

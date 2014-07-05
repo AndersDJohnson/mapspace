@@ -340,6 +340,7 @@ mapspaceApp.controller('SpaceController', [
 
     var locationLoop = function () {
       mapspaceService.getCurrentPosition().then(function (position) {
+        console.log('position', (new Date()));
         if (! $scope.leavingSpace) {
           pushLocation(position, function () {
               setTimeout(locationLoop, 5000);
