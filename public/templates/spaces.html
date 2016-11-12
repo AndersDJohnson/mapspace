@@ -2,13 +2,21 @@
   <ng-include src="'templates/nav.html'"></ng-include>
   <div class="viewport-main">
 
-    <h3>Spaces</h3>
-    <div>
-      <ul>
-        <li ng-repeat="(id, space) in spaces">
-          <a href="#/spaces/{{id}}">{{id}}</a>
-        </li>
-      </ul>
+    <div class="container-fluid">
+      <h3>Spaces</h3>
+      <div>
+        <ul>
+          <li>
+            <a href="#/spaces/common">common</a>
+          </li>
+          <li ng-repeat="(id, space) in spaces">
+            <a href="#/spaces/{{id}}">{{id}}</a>
+          </li>
+          <li>
+            Or create one by visiting "#/spaces/YOURSPACE" where "YOURSPACE" is any name you choose!
+          </li>
+        </ul>
+      </div>
     </div>
 
   </div>
